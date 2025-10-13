@@ -1,0 +1,27 @@
+{
+  "name": "ass_3",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "conn.js",
+  "scripts": {
+    "start": "node conn.js",
+    "dev": "concurrently -k -p name -n backend,frontend -c magenta,cyan \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "node conn.js",
+    "dev:client": "http-server ../client -p 1234 -c-1",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "mongodb": "^6.20.0",
+    "mongoose": "^8.18.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "http-server": "^14.1.1"
+  }
+}

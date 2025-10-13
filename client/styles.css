@@ -1,0 +1,23 @@
+#dbDataShower {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;      /* space between containers */
+}
+
+.type-container{
+    background-color: #acacacff;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+
+.user-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
