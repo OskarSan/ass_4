@@ -18,7 +18,9 @@
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "mongodb": "^6.20.0",
-    "mongoose": "^8.18.2"
+    "mongoose": "^8.18.2",
+    "sequelize": "^6.37.7",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "concurrently": "^9.0.1",
