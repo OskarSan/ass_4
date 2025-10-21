@@ -17,6 +17,33 @@
         <button class="dbButtons" id="database3">database3</button>
     </div>
     <div id="responseDiv"></div>
+    
+    <div>
+      <form action="submit" id="addDataForm">
+
+        <label for="types">Choose a type:</label>
+        
+        <select id="types" name="types">
+          <option value="users">User</option>
+          <option value="dawgs">Dawg</option>
+          <option value="brothers">Brother</option>
+          <option value="sisters">Sister</option>
+          <option value="mothers">Mother</option>
+          <option value="fathers">Father</option>
+
+          <option value="aunts">Aunt</option>
+          <option value="uncles">Uncle</option>
+        </select>
+        
+        <input type="text" id="nameInput" name="name" placeholder="Name" required />
+        <input type="number" id="ageInput" name="age" placeholder="Age" required />
+        <input type="email" id="emailInput" name="email" placeholder="Email" required />
+
+        <button type="submit" id="submitData">Submit Data</button>
+
+      </form>  
+    </div>
+    
     <div>
         <button id="getAllData">Get All Data</button>
     </div>

@@ -15,6 +15,15 @@ const MONGODB_DIS_2 = process.env.MONGODB_DIS_2;
 const MONGODB_DIS_3 = process.env.MONGODB_DIS_3;
 
 
+const collections = {
+  users: mongoose.model("User"),
+  moms: mongoose.model("Mom"),
+  dads: mongoose.model("Dad"),
+  sisters: mongoose.model("Sister"),
+  brothers: mongoose.model("Brother"),
+  dawgs: mongoose.model("Dawg"),
+};
+
 
 
 router.post("/selectDB", (req, res) => {
@@ -83,6 +92,19 @@ router.post("/addRandomData", async (req, res) => {
 
 });
 
+router.post("/addSetData", async (req,res) => {
+    const { name, age, email } = req.body;
+    const collection = getCollection(req.body.type);
+    const newData = new collection({ name, age, email });
+    try {
+        await newData.save();
+        res.status(201).json({ message: "Data added successfully" });
+    } catch (error) {
+        console.error("Error adding data:", error);
+        res.status(500).json({ error: "Failed to add data" });
+    }
+});
+
 router.get("/getAllData", async (req, res) => {
     try {
         const users = await user.find();
@@ -130,6 +152,8 @@ router.post("/deleteData", async (req, res) => {
     }
 });
 
+
+
 function getCollection(collectionName) {
     switch (collectionName) {
         case "users":
@@ -151,3 +175,4 @@ function getCollection(collectionName) {
 
 export default router;
 
+export { collections };

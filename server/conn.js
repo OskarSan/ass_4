@@ -1,8 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import dbManagerRouter from './dbManager.js';
+import dbManagerRouter from './mongoDbManager.js';
 import SQLManagerRouter from './SQLManager.js';
+import dataEntryManagerRouter from './dataEntryManager.js'
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
@@ -23,8 +24,9 @@ const clientDir = path.resolve(__dirname, '../client');
 
 app.use(express.static(clientDir));
 
-app.use("/api/dbManager", dbManagerRouter);
+app.use("/api/mongoDbManager", dbManagerRouter);
 app.use("/api/SQLManager", SQLManagerRouter);
+app.use("/api/dataEntryManager", dataEntryManagerRouter);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(clientDir, 'index.html'));

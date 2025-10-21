@@ -1,30 +1,32 @@
-import router from express
-import sequelize from 'sequelize';
-import sqlite3 from 'sqlite3';
+import { Router } from 'express';
+import sq from 'sequelize';
+
 
 const router = Router();
 
-const sequelize = new Sequelize({
+const sequelize = new sq.Sequelize({
     dialect: 'sqlite',
-    storage: './SQLdatabase.sqlite', // Path to SQLite file
+    storage: "./SQLdatabase.sqlite"
 });
-
 const User = sequelize.define('User', {
-    name: { type: Sequelize.STRING, allowNull: false },
-    age: { type: Sequelize.INTEGER, allowNull: false },
-    email: { type: Sequelize.STRING, allowNull: false },
+    name: { type: sq.STRING, allowNull: false },
+    age: { type: sq.INTEGER, allowNull: false },
+    email: { type: sq.STRING, allowNull: false },
 });
 const Dawg = sequelize.define('Dawg', {
-    name: { type: Sequelize.STRING, allowNull: false },
-    age: { type: Sequelize.INTEGER, allowNull: false },
-    email: { type: Sequelize.STRING, allowNull: false },
+    name: { type: sq.STRING, allowNull: false },
+    age: { type: sq.INTEGER, allowNull: false },
+    email: { type: sq.STRING, allowNull: false },
 });
 const Brother = sequelize.define('Brother', {
-    name: { type: Sequelize.STRING, allowNull: false },
-    age: { type: Sequelize.INTEGER, allowNull: false },
-    email: { type: Sequelize.STRING, allowNull: false },
+    name: { type: sq.STRING, allowNull: false },
+    age: { type: sq.INTEGER, allowNull: false },
+    email: { type: sq.STRING, allowNull: false },
 });
 sequelize.sync();
+
+const tables = { User, Dawg, Brother };
+
 
 router.get("/getAllData", async (req, res) => {
     try {
@@ -90,4 +92,6 @@ router.get("/getData", (req, res) => {
 
 
 
-export default router;
+export default router ;
+
+export { tables, sequelize };

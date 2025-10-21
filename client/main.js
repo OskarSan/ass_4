@@ -5,7 +5,7 @@ buttons.forEach(button => {
     button.addEventListener('click', async () => {
         console.log(`${button.id} clicked!`);
         try{
-            const response = await fetch(`http://localhost:3000/api/dbManager/selectDB`, {
+            const response = await fetch(`http://localhost:3000/api/mongoDbManager/selectDB`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -27,7 +27,7 @@ buttons.forEach(button => {
 const getAllDataButton = document.getElementById('getAllData');
 getAllDataButton.addEventListener('click', async () => {
     try {
-        const response = await fetch(`http://localhost:3000/api/dbManager/getAllData`, {
+        const response = await fetch(`http://localhost:3000/api/mongoDbManager/getAllData`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -63,7 +63,7 @@ function renderData(data) {
             addRandomDataButton.textContent = 'Add Random Data';
             addRandomDataButton.addEventListener('click', async () => {
                 try {
-                    const response = await fetch(`http://localhost:3000/api/dbManager/addRandomData`, {
+                    const response = await fetch(`http://localhost:3000/api/mongoDbManager/addRandomData`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -123,7 +123,7 @@ async function editData(item, collection) {
     const submitChanges = confirm(`Save changes?\nName: ${newName}\nAge: ${newAge}\nEmail: ${newEmail}`);
     if (submitChanges) {
         try{
-            const response = await fetch(`http://localhost:3000/api/dbManager/updateData`, {
+            const response = await fetch(`http://localhost:3000/api/mongoDbManager/updateData`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -150,10 +150,11 @@ async function deleteData(item, collection) {
     const confirmDelete = confirm("Are you sure you want to delete this item?");
     if (confirmDelete) {
         try{
-            const response = await fetch(`http://localhost:3000/api/dbManager/deleteData`, {
+            const response = await fetch(`http://localhost:3000/api/mongoDbManager/deleteData`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
+
                 },
                 body: JSON.stringify({
                     collection: collection,
@@ -169,3 +170,33 @@ async function deleteData(item, collection) {
     }
 }
 
+const dataAddForm = document.getElementById('addDataForm');
+dataAddForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const formData = new FormData(dataAddForm);
+    const entryType = formData.get('types');
+    const name = formData.get('name');
+    const age = formData.get('age');
+    const email = formData.get('email');
+
+    try{
+        const response = await fetch(`http://localhost:3000/api/dataEntryManager/checkDataLocation`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'destAPI': 'addSetData'
+            },
+            body: JSON.stringify({
+                type: entryType,
+                name: name,
+                age: age,
+                email: email
+            })
+        });
+        const data = await response.json();
+        console.log('Data received:', data);
+        getAllDataButton.click();
+    }catch (error) {
+        console.error('Error:', error);
+    }
+});
