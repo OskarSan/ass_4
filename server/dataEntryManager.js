@@ -6,7 +6,70 @@ import {tables} from "./SQLManager.js"
 
 const router = Router();
 
+router.get("/getAllData", async (req, res) => {
+    const reqDestination = req.header("destAPI");
+    let returnData = {};
+    if (!reqDestination) {
+        return res.status(400).json({ error: "Destination API not specified in the header." });
+    }
+    //mongo fetch
+    try{
+        const apiUrl = `http://localhost:3000/api/mongoDbManager/${reqDestination}`; // Construct the full API URL
+        const mongoResponse = await fetch(apiUrl, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
 
+        if (!mongoResponse.ok) {
+            const errorText = await mongoResponse.text();
+            console.error("Error fetching MongoDB data:", errorText);
+            return res.status(mongoResponse.status).json({ error: "Failed to fetch data from MongoDB." });
+        }
+
+        const mongoData = await mongoResponse.json();
+        returnData = { ...returnData, ...mongoData };
+
+    } catch (error) {
+        console.error("Error fetching MongoDB data:", error);
+        return res.status(500).json({ error: "Failed to fetch data from MongoDB." });
+    }
+
+
+    //sql fetch
+    try{
+        const apiUrl = `http://localhost:3000/api/SQLManager/${reqDestination}`;
+        const sqlResponse = await fetch(apiUrl, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (!sqlResponse.ok) {
+            const errorText = await sqlResponse.text();
+            console.error("Error fetching SQL data:", errorText);
+            return res.status(sqlResponse.status).json({ error: "Failed to fetch data from SQL." });
+        }
+
+        const sqlData = await sqlResponse.json();
+
+        for (const key in sqlData) {
+            if (returnData[key]) {
+                returnData[key] = [...returnData[key], ...sqlData[key]]; // Combine arrays
+            } else {
+                returnData[key] = sqlData[key];
+            }
+        }
+
+    } catch (error) {
+        console.error("Error fetching SQL data:", error);
+        return res.status(500).json({ error: "Failed to fetch data from SQL." });
+    }
+
+    res.json(returnData);
+});
 
 
 router.post("/checkDataLocation", async (req, res) => {
@@ -18,21 +81,27 @@ router.post("/checkDataLocation", async (req, res) => {
     };
 
     console.log(formData.type);
+    console.log(tables);
     const reqDestination = req.header("destAPI");
 
-    let mongoCollectionCheck = false;
-    let sqlTableCheck = false;
+
+   
 
     console.log("reqDest: " + reqDestination);
     if (!reqDestination) {
         return res.status(400).json({ error: "Destination API not specified in the header." });
     }
+    
+    let mongoResponseData = null;
+    let sqlResponseData = null;
+
 
     // Log the available MongoDB collections
     //console.log("Available MongoDB collections:", Object.keys(collections));
 
     if (formData.type && collections.hasOwnProperty(formData.type)) {
-        mongoCollectionCheck = true;
+        console.log("mongofetch started")
+
         try {
             const apiUrl = `http://localhost:3000/api/mongoDbManager/${reqDestination}`; // Construct the full API URL
             const response = await fetch(apiUrl, {
@@ -47,18 +116,19 @@ router.post("/checkDataLocation", async (req, res) => {
             if (!response.ok) {
                 const errorText = await response.text(); // Read the response as text
                 console.error("Error forwarding request:", errorText);
-                return res.status(response.status).json({ error: "Failed to forward request to the destination API." });
+            } else {
+                mongoResponseData = await response.json();
+                console.log("MongoDB response received:", mongoResponseData);
             }
-            const data = await response.json();
-            res.status(response.status).json(data);
+            
         } catch (error) {
             console.error("Error forwarding request:", error);
-            res.status(500).json({ error: "Failed to forward request to the destination API." });
         }
 
     } 
     if (formData.type && tables.hasOwnProperty(formData.type)) {
-        sqlTableCheck = true;
+        console.log("sqlfetch started");
+ 
         try {
             const apiUrl = `http://localhost:3000/api/SQLManager/${reqDestination}`; // Construct the full API URL
             const response = await fetch(apiUrl, {
@@ -67,23 +137,30 @@ router.post("/checkDataLocation", async (req, res) => {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(formData), // Forward the form data
-            });
+        });
 
-            // Relay the response from the destination API back to the client
-            const data = await response.json();
-            res.status(response.status).json(data);
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Error forwarding request to SQL:", errorText);
+        } else {
+            sqlResponseData = await response.json();
+            console.log("SQL response received:", sqlResponseData);
+        }
         } catch (error) {
             console.error("Error forwarding request:", error);
-            res.status(500).json({ error: "Failed to forward request to the destination API." });
         }  
     }
 
-    if (!mongoCollectionCheck && !sqlTableCheck) {
-        return  res.status(400).json({ error: "Invalid type specified." });
+    if (!mongoResponseData && !sqlResponseData) {
+        return res.status(400).json({ error: "Invalid type specified or no data found in either database." });
     }
 
+    const combinedResponse = {
+        mongoData: mongoResponseData,
+        sqlData: sqlResponseData,
+    };
 
-
+    res.json(combinedResponse);
 });
 
 export default router;

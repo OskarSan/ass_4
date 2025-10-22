@@ -27,10 +27,11 @@ buttons.forEach(button => {
 const getAllDataButton = document.getElementById('getAllData');
 getAllDataButton.addEventListener('click', async () => {
     try {
-        const response = await fetch(`http://localhost:3000/api/mongoDbManager/getAllData`, {
+        const response = await fetch(`http://localhost:3000/api/dataEntryManager/getAllData`, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'destAPI': 'getAllData'
             }
         });
 

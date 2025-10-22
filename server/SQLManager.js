@@ -8,34 +8,47 @@ const sequelize = new sq.Sequelize({
     dialect: 'sqlite',
     storage: "./SQLdatabase.sqlite"
 });
-const User = sequelize.define('User', {
+const users = sequelize.define('User', {
     name: { type: sq.STRING, allowNull: false },
     age: { type: sq.INTEGER, allowNull: false },
     email: { type: sq.STRING, allowNull: false },
 });
-const Dawg = sequelize.define('Dawg', {
+const dawgs = sequelize.define('Dawg', {
     name: { type: sq.STRING, allowNull: false },
     age: { type: sq.INTEGER, allowNull: false },
     email: { type: sq.STRING, allowNull: false },
 });
-const Brother = sequelize.define('Brother', {
+const brothers = sequelize.define('Brother', {
     name: { type: sq.STRING, allowNull: false },
     age: { type: sq.INTEGER, allowNull: false },
     email: { type: sq.STRING, allowNull: false },
 });
+const uncs = sequelize.define('Uncs', {
+    name:  { type: sq.STRING, allowNull: false },
+    age: { type: sq.INTEGER, allowNull: false },
+    email: { type: sq.STRING, allowNull: false },
+});
+const aunts = sequelize.define('Aunts', {
+    name: { type: sq.STRING, allowNull: false },
+    age: { type: sq.INTEGER, allowNull: false },
+    email: { type: sq.STRING, allowNull: false },
+});
+
 sequelize.sync();
 
-const tables = { User, Dawg, Brother };
+const tables = { users, dawgs, brothers, uncs, aunts };
 
 
 router.get("/getAllData", async (req, res) => {
     try {
-        
-        const users = await User.findAll();
-        const dawgs = await Dawg.findAll();
-        const brothers = await Brother.findAll();
-        
-        res.json({ users: users, dawgs: dawgs, brothers: brothers });
+
+        const usersJSON = await users.findAll();
+        const dawgsJSON = await dawgs.findAll();
+        const brothersJSON = await brothers.findAll();
+        const uncsJSON = await uncs.findAll();
+        const auntsJSON = await aunts.findAll();
+
+        res.json({ users: usersJSON, dawgs: dawgsJSON, brothers: brothersJSON, uncs: uncsJSON, aunts: auntsJSON });
 
     }catch (error) {
         console.error("Error fetching data:", error);
@@ -43,7 +56,24 @@ router.get("/getAllData", async (req, res) => {
     }
 });
 
+router.post("/addSetData", async (req, res) => {
+    const {name, age, email} = req.body;
+    const table = tables[req.body.type];
+    if (!table) {
+        return res.status(400).json({ error: "Invalid table type" });
+    }
 
+    try {
+        const newData = await table.create({ name, age, email });
+        res.status(201).json(newData);
+    } catch (error) {
+        console.error("Error adding data:", error);
+        res.status(500).json({ error: "Failed to add data" });
+    }
+
+
+
+});
 
 
 

@@ -152,8 +152,6 @@ router.post("/deleteData", async (req, res) => {
     }
 });
 
-
-
 function getCollection(collectionName) {
     switch (collectionName) {
         case "users":
