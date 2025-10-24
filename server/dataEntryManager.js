@@ -57,7 +57,9 @@ router.get("/getAllData", async (req, res) => {
 
         for (const key in sqlData) {
             if (returnData[key]) {
-                returnData[key] = [...returnData[key], ...sqlData[key]]; // Combine arrays
+                const mongoNames = new Set(returnData[key].map(item => item.name));
+                const filteredSQLData = sqlData[key].filter(item => !mongoNames.has(item.name));
+                returnData[key] = [...returnData[key], ...filteredSQLData]; // Combine arrays
             } else {
                 returnData[key] = sqlData[key];
             }
@@ -77,15 +79,12 @@ router.post("/checkDataLocation", async (req, res) => {
         type: req.body.type,
         name: req.body.name,
         age: req.body.age,
-        email: req.body.email
+        email: req.body.email,
     };
 
     console.log(formData.type);
     console.log(tables);
     const reqDestination = req.header("destAPI");
-
-
-   
 
     console.log("reqDest: " + reqDestination);
     if (!reqDestination) {
@@ -128,7 +127,13 @@ router.post("/checkDataLocation", async (req, res) => {
     } 
     if (formData.type && tables.hasOwnProperty(formData.type)) {
         console.log("sqlfetch started");
- 
+
+        const mongoId = mongoResponseData ? mongoResponseData._id : null;
+        console.log("mongoResDatato forward:", mongoResponseData);
+        if (mongoId) {
+            formData.mongoId = mongoId; // Add the MongoDB ID to the form data
+        }
+        console.log("formData with mongoId:", formData);
         try {
             const apiUrl = `http://localhost:3000/api/SQLManager/${reqDestination}`; // Construct the full API URL
             const response = await fetch(apiUrl, {

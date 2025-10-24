@@ -12,26 +12,31 @@ const users = sequelize.define('User', {
     name: { type: sq.STRING, allowNull: false },
     age: { type: sq.INTEGER, allowNull: false },
     email: { type: sq.STRING, allowNull: false },
+    mongoId: { type: sq.STRING, allowNull: true },
 });
 const dawgs = sequelize.define('Dawg', {
     name: { type: sq.STRING, allowNull: false },
     age: { type: sq.INTEGER, allowNull: false },
     email: { type: sq.STRING, allowNull: false },
+    mongoId: { type: sq.STRING, allowNull: true },
 });
 const brothers = sequelize.define('Brother', {
     name: { type: sq.STRING, allowNull: false },
     age: { type: sq.INTEGER, allowNull: false },
     email: { type: sq.STRING, allowNull: false },
+    mongoId: { type: sq.STRING, allowNull: true },
 });
 const uncs = sequelize.define('Uncs', {
     name:  { type: sq.STRING, allowNull: false },
     age: { type: sq.INTEGER, allowNull: false },
     email: { type: sq.STRING, allowNull: false },
+    mongoId: { type: sq.STRING, allowNull: true },
 });
 const aunts = sequelize.define('Aunts', {
     name: { type: sq.STRING, allowNull: false },
     age: { type: sq.INTEGER, allowNull: false },
     email: { type: sq.STRING, allowNull: false },
+    mongoId: { type: sq.STRING, allowNull: true },
 });
 
 sequelize.sync();
@@ -56,26 +61,50 @@ router.get("/getAllData", async (req, res) => {
     }
 });
 
-router.post("/addSetData", async (req, res) => {
+router.post("/addData", async (req, res) => {
     const {name, age, email} = req.body;
+    let id = null;
+    if(req.body.mongoId){
+        id = req.body.mongoId;
+    }
+    console.log("Adding data to SQL with mongoId:", id);
     const table = tables[req.body.type];
     if (!table) {
         return res.status(400).json({ error: "Invalid table type" });
     }
-
     try {
-        const newData = await table.create({ name, age, email });
+        const newData = await table.create({ id, name, age, email });
         res.status(201).json(newData);
     } catch (error) {
         console.error("Error adding data:", error);
         res.status(500).json({ error: "Failed to add data" });
     }
-
-
-
 });
 
 
+router.post("/deleteData", async (req, res) => {
+    
+    let id = null;
+
+    if(req.body.mongoId){
+        id = req.body.mongoId;
+    }
+
+    const table = tables[req.body.collection];
+    if (!table) {
+        return res.status(400).json({ error: "Invalid table type" });
+    }
+    try {
+        const deletedCount = await table.destroy({ where: { id } });
+        if (deletedCount === 0) {
+            return res.status(404).json({ error: "Data not found" });
+        }
+        res.json({ message: "Data deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting data:", error);
+        res.status(500).json({ error: "Failed to delete data" });
+    }
+});
 
 /*
 const db = new sqlite3.Database('./SQLdatabase.db', (err) => {

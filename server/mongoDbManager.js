@@ -92,13 +92,13 @@ router.post("/addRandomData", async (req, res) => {
 
 });
 
-router.post("/addSetData", async (req,res) => {
+router.post("/addData", async (req,res) => {
     const { name, age, email } = req.body;
     const collection = getCollection(req.body.type);
     const newData = new collection({ name, age, email });
     try {
         await newData.save();
-        res.status(201).json({ message: "Data added successfully" });
+        res.status(201).json({ message: "Data added successfully", _id: newData._id });
     } catch (error) {
         console.error("Error adding data:", error);
         res.status(500).json({ error: "Failed to add data" });
@@ -143,7 +143,7 @@ router.post("/deleteData", async (req, res) => {
         const collection = getCollection(req.body.collection);
         const deletedUser = await collection.findByIdAndDelete(id);
         if (!deletedUser) {
-            return res.status(404).json({ error: "User not found" });
+            return deleteDatares.status(404).json({ error: "User not found" });
         }
         res.json({ message: "User deleted successfully" });
     } catch (error) {

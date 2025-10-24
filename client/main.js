@@ -63,13 +63,25 @@ function renderData(data) {
             const addRandomDataButton = document.createElement('button');
             addRandomDataButton.textContent = 'Add Random Data';
             addRandomDataButton.addEventListener('click', async () => {
+
+                const randomName = `${key.slice(0, -1)}${Math.floor(Math.random() * 1000)}`;
+                const randomAge = Math.floor(Math.random() * 100);
+                const randomEmail = `${randomName.toLowerCase()}@example.com`;
+
                 try {
-                    const response = await fetch(`http://localhost:3000/api/mongoDbManager/addRandomData`, {
+                    
+                    const response = await fetch(`http://localhost:3000/api/dataEntryManager/checkDataLocation`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'destAPI': 'addData'
                         },
-                        body: JSON.stringify({ collection: key })
+                        body: JSON.stringify({ 
+                            type: key,
+                            name: randomName,
+                            age: randomAge,
+                            email: randomEmail 
+                        })
                     });
 
                     const data = await response.json();
@@ -151,10 +163,11 @@ async function deleteData(item, collection) {
     const confirmDelete = confirm("Are you sure you want to delete this item?");
     if (confirmDelete) {
         try{
-            const response = await fetch(`http://localhost:3000/api/mongoDbManager/deleteData`, {
+            const response = await fetch(`http://localhost:3000/api/dataEntryManager/checkDataLocation`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'destAPI': 'deleteData'
 
                 },
                 body: JSON.stringify({
@@ -185,7 +198,7 @@ dataAddForm.addEventListener('submit', async (event) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'destAPI': 'addSetData'
+                'destAPI': 'addData'
             },
             body: JSON.stringify({
                 type: entryType,
