@@ -57,8 +57,10 @@ router.get("/getAllData", async (req, res) => {
 
         for (const key in sqlData) {
             if (returnData[key]) {
-                returnData[key] = [...returnData[key], ...sqlData[key]]; // Combine arrays
-            } else {
+                const mongoNames = new Set(returnData[key].map(item => item.name));
+                const filteredSQLData = sqlData[key].filter(item => !mongoNames.has(item.name));
+                returnData[key] = [...returnData[key], ...filteredSQLData]; // Combine arrays
+          } else {
                 returnData[key] = sqlData[key];
             }
         }
@@ -73,20 +75,46 @@ router.get("/getAllData", async (req, res) => {
 
 
 router.post("/checkDataLocation", async (req, res) => {
-    const formData = {
-        type: req.body.type,
-        name: req.body.name,
-        age: req.body.age,
-        email: req.body.email
-    };
+    let formData;
+    if(req.body.addRandomData){ // creation with random attributes
 
-    console.log(formData.type);
+        const randomName = `${req.body.type}_${Math.random().toString(36).substring(2, 8)}`;
+        const randomAge = Math.floor(Math.random() * 100);
+        const randomEmail = `${randomName.toLowerCase()}@example.com`;
+        const randomGlobalId = Math.random().toString(36).substring(2, 14);
+
+        formData = {
+            type: req.body.type,
+            name: randomName,
+            age: randomAge,
+            email: randomEmail,
+            globalId: randomGlobalId,
+        }
+
+    } else if(req.body.addData){ // creation with set attributes
+        
+        const randomGlobalId = Math.random().toString(36).substring(2, 14); // Generate a 12-character alphanumeric string
+        
+        formData = {
+            type: req.body.type,
+            name: req.body.name,
+            age: req.body.age,
+            email: req.body.email,
+            globalId: randomGlobalId
+        }
+
+    } else { // edit or delete
+
+        formData = {
+            type: req.body.collection,
+            globalId: req.body.globalId
+        }
+    }
+
+    console.log("formData.type: " + formData.type);
     console.log(tables);
     const reqDestination = req.header("destAPI");
-
-
    
-
     console.log("reqDest: " + reqDestination);
     if (!reqDestination) {
         return res.status(400).json({ error: "Destination API not specified in the header." });

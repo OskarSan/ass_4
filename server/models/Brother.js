@@ -3,6 +3,7 @@ const brotherSchema = new mongoose.Schema({
 	name: { type: String, required: true },
 	age: { type: Number, required: true },
 	email: { type: String, required: true },
+	globalId: { type: String, required: true }
 });
 const Brother = mongoose.model("Brother", brotherSchema);
 export default Brother;

@@ -92,10 +92,10 @@ router.post("/addRandomData", async (req, res) => {
 
 });
 
-router.post("/addSetData", async (req,res) => {
-    const { name, age, email } = req.body;
+router.post("/addData", async (req,res) => {
+    const { name, age, email, globalId } = req.body;
     const collection = getCollection(req.body.type);
-    const newData = new collection({ name, age, email });
+    const newData = new collection({ name, age, email, globalId });
     try {
         await newData.save();
         res.status(201).json({ message: "Data added successfully" });
@@ -137,11 +137,9 @@ router.post("/updateData", async (req, res) => {
 });
 
 router.post("/deleteData", async (req, res) => {
-    const { id } = req.body;
-    console.log("Deleting user with ID:", id, " from collection:", req.body.collection);
     try {
-        const collection = getCollection(req.body.collection);
-        const deletedUser = await collection.findByIdAndDelete(id);
+        const collection = getCollection(req.body.type);
+        const deletedUser = await collection.findOneAndDelete({ globalId: req.body.globalId });
         if (!deletedUser) {
             return res.status(404).json({ error: "User not found" });
         }
