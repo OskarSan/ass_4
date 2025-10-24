@@ -122,10 +122,10 @@ router.get("/getAllData", async (req, res) => {
 });
 
 router.post("/updateData", async (req, res) => {
-    const { id, name, age, email } = req.body;
+    const { globalId, name, age, email } = req.body;
     try {
-        const collection = getCollection(req.body.collection);
-        const updatedUser = await collection.findByIdAndUpdate(id, { name, age, email }, { new: true });
+        const collection = getCollection(req.body.type);
+        const updatedUser = await collection.findOneAndUpdate({ globalId }, { name, age, email }, { new: true });
         if (!updatedUser) {
             return res.status(404).json({ error: "User not found" });
         }

@@ -96,6 +96,26 @@ router.post("/deleteData", async (req, res) => {
     }
 });
 
+router.post("/updateData", async (req, res) => {
+    const { globalId, name, age, email } = req.body;
+    try {
+        const table = tables[req.body.type];
+        if (!table) {
+            return res.status(400).json({ error: "Invalid table type" });
+        }
+        const [updatedCount, updatedRows] = await table.update(
+            { name, age, email },
+            { where: { globalId }, returning: true }
+        );
+        if (updatedCount === 0) {
+            return res.status(404).json({ error: "Data not found" });
+        }
+        res.json(updatedRows[0]);
+    } catch (error) {
+        console.error("Error updating data:", error);
+        res.status(500).json({ error: "Failed to update data" });
+    }
+});
 
 /*
 const db = new sqlite3.Database('./SQLdatabase.db', (err) => {

@@ -129,17 +129,20 @@ async function editData(item, collection) {
     const submitChanges = confirm(`Save changes?\nName: ${newName}\nAge: ${newAge}\nEmail: ${newEmail}`);
     if (submitChanges) {
         try{
-            const response = await fetch(`http://localhost:3000/api/mongoDbManager/updateData`, {
+            const response = await fetch(`http://localhost:3000/api/dataEntryManager/checkDataLocation`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'destAPI': 'updateData'
+
                 },
                 body: JSON.stringify({
                     collection: collection,
-                    id: item._id,
+                    globalId: item.globalId,
                     name: newName,
                     age: newAge,
-                    email: newEmail
+                    email: newEmail,
+                    editData: true //bruh
                 })
             });
             const data = await response.json();

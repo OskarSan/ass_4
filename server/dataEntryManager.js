@@ -102,8 +102,17 @@ router.post("/checkDataLocation", async (req, res) => {
             email: req.body.email,
             globalId: randomGlobalId
         }
+    }else if(req.body.editData){ // edit with set attributes
 
-    } else { // edit or delete
+        formData = {
+            type: req.body.collection,
+            globalId: req.body.globalId,
+            name: req.body.name,
+            age: req.body.age,
+            email: req.body.email
+        }
+
+    } else { // delete
 
         formData = {
             type: req.body.collection,
