@@ -80,6 +80,8 @@ router.post("/checkDataLocation", async (req, res) => {
         name: req.body.name,
         age: req.body.age,
         email: req.body.email,
+        mongoId: req.body._id || null, // Send mongoId if it exists
+        id: req.body.id || null    
     };
 
     console.log(formData.type);
@@ -126,34 +128,29 @@ router.post("/checkDataLocation", async (req, res) => {
 
     } 
     if (formData.type && tables.hasOwnProperty(formData.type)) {
-        console.log("sqlfetch started");
+        const mongoId = mongoResponseData ? mongoResponseData._id : null; // Use MongoDB ID if available
+        const sqlData = {
+            ...formData,
+            mongoId: mongoId || null, // Add MongoDB ID if it exists, otherwise null
+        };
 
-        const mongoId = mongoResponseData ? mongoResponseData._id : null;
-        console.log("mongoResDatato forward:", mongoResponseData);
-        if (mongoId) {
-            formData.mongoId = mongoId; // Add the MongoDB ID to the form data
-        }
-        console.log("formData with mongoId:", formData);
         try {
-            const apiUrl = `http://localhost:3000/api/SQLManager/${reqDestination}`; // Construct the full API URL
+            const apiUrl = `http://localhost:3000/api/SQLManager/${reqDestination}`;
             const response = await fetch(apiUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData), // Forward the form data
-        });
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(sqlData),
+            });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Error forwarding request to SQL:", errorText);
-        } else {
-            sqlResponseData = await response.json();
-            console.log("SQL response received:", sqlResponseData);
-        }
+            if (response.ok) {
+                sqlResponseData = await response.json();
+                console.log("SQL response received:", sqlResponseData);
+            }
         } catch (error) {
-            console.error("Error forwarding request:", error);
-        }  
+            console.error("Error creating SQL item:", error);
+        }
     }
 
     if (!mongoResponseData && !sqlResponseData) {

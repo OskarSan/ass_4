@@ -62,18 +62,22 @@ router.get("/getAllData", async (req, res) => {
 });
 
 router.post("/addData", async (req, res) => {
-    const {name, age, email} = req.body;
-    let id = null;
-    if(req.body.mongoId){
-        id = req.body.mongoId;
-    }
-    console.log("Adding data to SQL with mongoId:", id);
+    const { name, age, email, mongoId } = req.body; // Extract mongoId from the request body
     const table = tables[req.body.type];
+
     if (!table) {
         return res.status(400).json({ error: "Invalid table type" });
     }
+
     try {
-        const newData = await table.create({ id, name, age, email });
+        // Create a new SQL entry with the provided data
+        const newData = await table.create({
+            name,
+            age,
+            email,
+            mongoId: mongoId || null, // Use mongoId if provided, otherwise set it to null
+        });
+
         res.status(201).json(newData);
     } catch (error) {
         console.error("Error adding data:", error);
@@ -84,21 +88,22 @@ router.post("/addData", async (req, res) => {
 
 router.post("/deleteData", async (req, res) => {
     
-    let id = null;
+    const { mongoId, id, collection } = req.body; // Extract mongoId and id from the request body
+    const table = tables[collection];
 
-    if(req.body.mongoId){
-        id = req.body.mongoId;
-    }
-
-    const table = tables[req.body.collection];
     if (!table) {
         return res.status(400).json({ error: "Invalid table type" });
     }
+
     try {
-        const deletedCount = await table.destroy({ where: { id } });
+        // Delete based on mongoId if it exists, otherwise by SQL id
+        const whereClause = mongoId ? { mongoId } : { id };
+        const deletedCount = await table.destroy({ where: whereClause });
+
         if (deletedCount === 0) {
             return res.status(404).json({ error: "Data not found" });
         }
+
         res.json({ message: "Data deleted successfully" });
     } catch (error) {
         console.error("Error deleting data:", error);

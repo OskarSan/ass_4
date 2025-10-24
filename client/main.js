@@ -171,8 +171,9 @@ async function deleteData(item, collection) {
 
                 },
                 body: JSON.stringify({
-                    collection: collection,
-                    id: item._id
+                    type: collection,
+                    mongoId: item._id || null, // Send mongoId if it exists
+                    id: item.id || null    
                 })
             });
             const data = await response.json();

@@ -137,13 +137,13 @@ router.post("/updateData", async (req, res) => {
 });
 
 router.post("/deleteData", async (req, res) => {
-    const { id } = req.body;
+    const { id } = req.body.mongoId;
     console.log("Deleting user with ID:", id, " from collection:", req.body.collection);
     try {
         const collection = getCollection(req.body.collection);
         const deletedUser = await collection.findByIdAndDelete(id);
         if (!deletedUser) {
-            return deleteDatares.status(404).json({ error: "User not found" });
+            return res.status(404).json({ error: "User not found" });
         }
         res.json({ message: "User deleted successfully" });
     } catch (error) {
