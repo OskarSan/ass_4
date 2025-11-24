@@ -13,10 +13,10 @@
     
     <div>
         <button class="dbButtons" id="database1">database1</button>
-        <button class="dbButtons" id="database2">database2</button>
-        <button class="dbButtons" id="database3">database3</button>
+        <button class="dbButtons" id="database2" style="display: none">database2</button>
+        <button class="dbButtons" id="database3" style="display: none">database3</button>
     </div>
-    <div id="responseDiv"></div>
+    <div id="responseDiv" style="display: none"></div>
     
     <div>
       <form action="submit" id="addDataForm">
@@ -28,11 +28,11 @@
           <option value="dawgs">Dawg</option>
           <option value="brothers">Brother</option>
           <option value="sisters">Sister</option>
-          <option value="mothers">Mother</option>
-          <option value="fathers">Father</option>
+          <option value="moms">Mother</option>
+          <option value="dads">Father</option>
 
           <option value="aunts">Aunt</option>
-          <option value="uncles">Uncle</option>
+          <option value="uncs">Uncle</option>
         </select>
         
         <input type="text" id="nameInput" name="name" placeholder="Name" required />
