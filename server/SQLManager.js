@@ -70,9 +70,46 @@ router.post("/addSetData", async (req, res) => {
         console.error("Error adding data:", error);
         res.status(500).json({ error: "Failed to add data" });
     }
+});
 
+router.post("/addRandomData", async (req, res) => {
+    const { collection } = req.body;
 
+    if (!tables[collection]) {
+        return res.status(400).json({ error: "Invalid collection name" });
+    }
 
+    let name;
+    switch (collection) {
+        case "users":
+            name = `User${Math.floor(Math.random() * 1000)}`;
+            break;
+        case "dawgs":
+            name = `Dawg${Math.floor(Math.random() * 1000)}`;
+            break;
+        case "brothers":
+            name = `Brother${Math.floor(Math.random() * 1000)}`;
+            break;
+        case "uncs":
+            name = `Unc${Math.floor(Math.random() * 1000)}`;
+            break;
+        case "aunts":
+            name = `Aunt${Math.floor(Math.random() * 1000)}`;
+            break;
+        default:
+            return res.status(400).json({ error: "Invalid collection name" });
+    }
+
+    const age = Math.floor(Math.random() * 100);
+    const email = `${name.toLowerCase()}@example.com`;
+
+    try {
+        const newData = await tables[collection].create({ name, age, email });
+        res.status(201).json({ message: "Data added successfully", data: newData });
+    } catch (error) {
+        console.error("Error adding data:", error);
+        res.status(500).json({ error: "Failed to add data" });
+    }
 });
 
 
