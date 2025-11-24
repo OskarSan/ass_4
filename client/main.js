@@ -63,13 +63,18 @@ function renderData(data) {
             const addRandomDataButton = document.createElement('button');
             addRandomDataButton.textContent = 'Add Random Data';
             addRandomDataButton.addEventListener('click', async () => {
+
                 try {
-                    const response = await fetch(`http://localhost:3000/api/mongoDbManager/addRandomData`, {
+                    const response = await fetch(`http://localhost:3000/api/dataEntryManager/checkDataLocation`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'destAPI': 'addData'
                         },
-                        body: JSON.stringify({ collection: key })
+                        body: JSON.stringify({
+                            type: key,
+                            addRandomData: true,
+                        })
                     });
 
                     const data = await response.json();
@@ -124,17 +129,20 @@ async function editData(item, collection) {
     const submitChanges = confirm(`Save changes?\nName: ${newName}\nAge: ${newAge}\nEmail: ${newEmail}`);
     if (submitChanges) {
         try{
-            const response = await fetch(`http://localhost:3000/api/mongoDbManager/updateData`, {
+            const response = await fetch(`http://localhost:3000/api/dataEntryManager/checkDataLocation`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'destAPI': 'updateData'
+
                 },
                 body: JSON.stringify({
                     collection: collection,
-                    id: item._id,
+                    globalId: item.globalId,
                     name: newName,
                     age: newAge,
-                    email: newEmail
+                    email: newEmail,
+                    editData: true //bruh
                 })
             });
             const data = await response.json();
@@ -151,15 +159,15 @@ async function deleteData(item, collection) {
     const confirmDelete = confirm("Are you sure you want to delete this item?");
     if (confirmDelete) {
         try{
-            const response = await fetch(`http://localhost:3000/api/mongoDbManager/deleteData`, {
+            const response = await fetch(`http://localhost:3000/api/dataEntryManager/checkDataLocation`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
-
+                    'Content-Type': 'application/json',
+                    'destAPI': 'deleteData'
                 },
                 body: JSON.stringify({
                     collection: collection,
-                    id: item._id
+                    globalId: item.globalId
                 })
             });
             const data = await response.json();
@@ -185,13 +193,14 @@ dataAddForm.addEventListener('submit', async (event) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'destAPI': 'addSetData'
+                'destAPI': 'addData'
             },
             body: JSON.stringify({
                 type: entryType,
                 name: name,
                 age: age,
-                email: email
+                email: email,
+                addData: true
             })
         });
         const data = await response.json();

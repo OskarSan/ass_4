@@ -12,26 +12,31 @@ const users = sequelize.define('User', {
     name: { type: sq.STRING, allowNull: false },
     age: { type: sq.INTEGER, allowNull: false },
     email: { type: sq.STRING, allowNull: false },
+    globalId: { type: sq.STRING, allowNull: false }
 });
 const dawgs = sequelize.define('Dawg', {
     name: { type: sq.STRING, allowNull: false },
     age: { type: sq.INTEGER, allowNull: false },
     email: { type: sq.STRING, allowNull: false },
+    globalId: { type: sq.STRING, allowNull: false }
 });
 const brothers = sequelize.define('Brother', {
     name: { type: sq.STRING, allowNull: false },
     age: { type: sq.INTEGER, allowNull: false },
     email: { type: sq.STRING, allowNull: false },
+    globalId: { type: sq.STRING, allowNull: false }
 });
 const uncs = sequelize.define('Uncs', {
     name:  { type: sq.STRING, allowNull: false },
     age: { type: sq.INTEGER, allowNull: false },
     email: { type: sq.STRING, allowNull: false },
+    globalId: { type: sq.STRING, allowNull: false }
 });
 const aunts = sequelize.define('Aunts', {
     name: { type: sq.STRING, allowNull: false },
     age: { type: sq.INTEGER, allowNull: false },
     email: { type: sq.STRING, allowNull: false },
+    globalId: { type: sq.STRING, allowNull: false }
 });
 
 sequelize.sync();
@@ -56,63 +61,61 @@ router.get("/getAllData", async (req, res) => {
     }
 });
 
-router.post("/addSetData", async (req, res) => {
-    const {name, age, email} = req.body;
+router.post("/addData", async (req, res) => {
+    const {name, age, email, globalId} = req.body;
     const table = tables[req.body.type];
     if (!table) {
         return res.status(400).json({ error: "Invalid table type" });
     }
 
     try {
-        const newData = await table.create({ name, age, email });
+        const newData = await table.create({ name, age, email, globalId });
         res.status(201).json(newData);
     } catch (error) {
         console.error("Error adding data:", error);
         res.status(500).json({ error: "Failed to add data" });
     }
+
 });
 
-router.post("/addRandomData", async (req, res) => {
-    const { collection } = req.body;
-
-    if (!tables[collection]) {
-        return res.status(400).json({ error: "Invalid collection name" });
-    }
-
-    let name;
-    switch (collection) {
-        case "users":
-            name = `User${Math.floor(Math.random() * 1000)}`;
-            break;
-        case "dawgs":
-            name = `Dawg${Math.floor(Math.random() * 1000)}`;
-            break;
-        case "brothers":
-            name = `Brother${Math.floor(Math.random() * 1000)}`;
-            break;
-        case "uncs":
-            name = `Unc${Math.floor(Math.random() * 1000)}`;
-            break;
-        case "aunts":
-            name = `Aunt${Math.floor(Math.random() * 1000)}`;
-            break;
-        default:
-            return res.status(400).json({ error: "Invalid collection name" });
-    }
-
-    const age = Math.floor(Math.random() * 100);
-    const email = `${name.toLowerCase()}@example.com`;
-
+router.post("/deleteData", async (req, res) => {
     try {
-        const newData = await tables[collection].create({ name, age, email });
-        res.status(201).json({ message: "Data added successfully", data: newData });
+        console.log("collection trying to delete from: "+req.body.type)
+        const table = tables[req.body.type];
+        if (!table) {
+            return res.status(400).json({ error: "Invalid table type" });
+        }
+        const deletedCount = await table.destroy({ where: { globalId: req.body.globalId } });
+        if (deletedCount === 0) {
+            return res.status(404).json({ error: "Data not found" });
+        }
+        res.json({ message: "Data deleted successfully" });
     } catch (error) {
-        console.error("Error adding data:", error);
-        res.status(500).json({ error: "Failed to add data" });
+        console.error("Error deleting data:", error);
+        res.status(500).json({ error: "Failed to delete data" });
     }
 });
 
-
+router.post("/updateData", async (req, res) => {
+    const { globalId, name, age, email } = req.body;
+    try {
+        const table = tables[req.body.type];
+        if (!table) {
+            return res.status(400).json({ error: "Invalid table type" });
+        }
+        const [updatedCount, updatedRows] = await table.update(
+            { name, age, email },
+            { where: { globalId }, returning: true }
+        );
+        if (updatedCount === 0) {
+            return res.status(404).json({ error: "Data not found" });
+        }
+        res.json(updatedRows[0]);
+    } catch (error) {
+        console.error("Error updating data:", error);
+        res.status(500).json({ error: "Failed to update data" });
+    }
+});
 
 /*
 const db = new sqlite3.Database('./SQLdatabase.db', (err) => {
